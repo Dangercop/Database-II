@@ -1,0 +1,11 @@
+
+CREATE OR REPLACE PROCEDURE compute_sum(a integer, b integer)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    result integer;
+BEGIN
+    result := a + b;
+    RAISE NOTICE 'Sum of input values: % + % = %', a, b, result;
+END;
+$$;

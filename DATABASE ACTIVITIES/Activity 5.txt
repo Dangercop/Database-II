@@ -1,0 +1,66 @@
+5. get_product_by_id procedure that accepts a product_id as a parameter and retrieves the corresponding product's name, price, and stock_quantity.
+
+
+-- Connect to the ABXCompany database
+\c ABXCompany
+
+-- Step 1: Create the products table
+CREATE TABLE IF NOT EXISTS products (
+    product_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL,
+    price NUMERIC(10, 2) NOT NULL,
+    stock_quantity INT NOT NULL
+);
+
+-- Step 2: Create the add_product procedure
+CREATE OR REPLACE PROCEDURE add_product(
+    IN product_name TEXT,
+    IN product_price NUMERIC,
+    IN product_stock INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO products(name, price, stock_quantity)
+    VALUES (product_name, product_price, product_stock);
+END;
+$$;
+
+-- Step 3: Create the get_product_by_id procedure
+CREATE OR REPLACE PROCEDURE get_product_by_id(
+    IN p_id INT,
+    OUT p_name TEXT,
+    OUT p_price NUMERIC,
+    OUT p_stock INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    SELECT name, price, stock_quantity
+    INTO p_name, p_price, p_stock
+    FROM products
+    WHERE product_id = p_id;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'No product found with ID: %', p_id;
+        p_name := NULL;
+        p_price := NULL;
+        p_stock := NULL;
+    END IF;
+END;
+$$;
+
+-- Step 4: Add a sample product
+CALL add_product('Whey Protein', 49.99, 100);
+
+-- Step 5: Retrieve and print the product info
+DO $$
+DECLARE
+    pname TEXT;
+    pprice NUMERIC;
+    pstock INT;
+BEGIN
+    CALL get_product_by_id(1, pname, pprice, pstock);
+    RAISE NOTICE 'Product Info -> Name: %, Price: %, Stock: %', pname, pprice, pstock;
+END;
+$$;

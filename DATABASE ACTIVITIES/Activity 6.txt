@@ -1,0 +1,98 @@
+-- Connect to ABXCompany database
+\c ABXCompany
+
+-- Step 1: Create the products table
+CREATE TABLE IF NOT EXISTS products (
+    product_id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    name TEXT NOT NULL,
+    price NUMERIC(10, 2) NOT NULL,
+    stock_quantity INT NOT NULL
+);
+
+-- Step 2: Procedure to add a new product
+CREATE OR REPLACE PROCEDURE add_product(
+    IN product_name TEXT,
+    IN product_price NUMERIC,
+    IN product_stock INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    INSERT INTO products(name, price, stock_quantity)
+    VALUES (product_name, product_price, product_stock);
+END;
+$$;
+
+-- Step 3: Procedure to get product by ID
+CREATE OR REPLACE PROCEDURE get_product_by_id(
+    IN p_id INT,
+    OUT p_name TEXT,
+    OUT p_price NUMERIC,
+    OUT p_stock INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    SELECT name, price, stock_quantity
+    INTO p_name, p_price, p_stock
+    FROM products
+    WHERE product_id = p_id;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'No product found with ID: %', p_id;
+        p_name := NULL;
+        p_price := NULL;
+        p_stock := NULL;
+    END IF;
+END;
+$$;
+
+-- Step 4: Procedure to update product stock
+CREATE OR REPLACE PROCEDURE update_product_stock(
+    IN p_id INT,
+    IN new_stock INT
+)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    UPDATE products
+    SET stock_quantity = new_stock
+    WHERE product_id = p_id;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'No product found with ID: %', p_id;
+    ELSE
+        RAISE NOTICE 'Stock updated for product ID %: New stock = %', p_id, new_stock;
+    END IF;
+END;
+$$;
+
+-- Step 5: Insert a product
+CALL add_product('Whey Protein', 49.99, 100);
+
+-- Step 6: Retrieve and display the product before update
+DO $$
+DECLARE
+    pname TEXT;
+    pprice NUMERIC;
+    pstock INT;
+BEGIN
+    CALL get_product_by_id(1, pname, pprice, pstock);
+    RAISE NOTICE 'Before Update -> Name: %, Price: %, Stock: %', pname, pprice, pstock;
+END;
+$$;
+
+-- Step 7: Update the stock
+CALL update_product_stock(1, 150);
+
+-- Step 8: Retrieve and display the product after update
+DO $$
+DECLARE
+    pname TEXT;
+    pprice NUMERIC;
+    pstock INT;
+BEGIN
+    CALL get_product_by_id(1, pname, pprice, pstock);
+    RAISE NOTICE 'After Update -> Name: %, Price: %, Stock: %', pname, pprice, pstock;
+END;
+$$;

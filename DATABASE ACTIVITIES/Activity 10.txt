@@ -1,0 +1,36 @@
+10. Create a stored procedure named check_stock_category that takes a product_id as input.
+Use the CASE Statement: Inside the procedure, 
+use a CASE statement to determine the stock level category based on stock_quantity:
+If the stock quantity is less than 10, categorize it as "Low Stock.“
+If the stock quantity is between 10 and 50, categorize it as "Moderate Stock.“
+If the stock quantity is greater than 50, categorize it as "High Stock."Raise 
+Notices: Use RAISE NOTICE to display the stock category for the specified product.
+
+
+CREATE OR REPLACE PROCEDURE check_stock_category(
+    IN p_id INT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    stock_qty INT;
+    category TEXT;
+BEGIN
+    SELECT stock_quantity INTO stock_qty
+    FROM products
+    WHERE product_id = p_id;
+
+    IF NOT FOUND THEN
+        RAISE NOTICE 'No product found with ID: %', p_id;
+        RETURN;
+    END IF;
+
+    category := CASE
+        WHEN stock_qty < 10 THEN 'Low Stock'
+        WHEN stock_qty BETWEEN 10 AND 50 THEN 'Moderate Stock'
+        ELSE 'High Stock'
+    END;
+
+    RAISE NOTICE 'Stock category for product ID %: % (Quantity: %)', p_id, category, stock_qty;
+END;
+$$;

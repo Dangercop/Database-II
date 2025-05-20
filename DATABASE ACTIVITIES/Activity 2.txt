@@ -1,0 +1,14 @@
+CREATE OR REPLACE PROCEDURE print_full_name(
+    IN first_name TEXT,
+    IN last_name TEXT
+)
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    full_name TEXT;
+BEGIN
+
+    full_name := first_name || ' ' || last_name;
+    RAISE NOTICE 'Full Name: %', full_name;
+END;
+$$;

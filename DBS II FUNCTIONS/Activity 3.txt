@@ -1,0 +1,15 @@
+CREATE OR REPLACE FUNCTION get_stock_name(p_id INTEGER)
+ RETURNS TEXT AS $$
+ DECLARE
+     stock_name TEXT;
+ BEGIN
+    SELECT name INTO stock_name
+    FROM product
+     WHERE id = p_id;
+
+    RETURN stock_name;
+ END;
+$$ LANGUAGE plpgsql;
+
+--call function
+SELECT get_stock_name(1);

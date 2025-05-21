@@ -1,0 +1,15 @@
+ CREATE OR REPLACE FUNCTION get_stock_quantity(p_id INTEGER)
+ RETURNS INTEGER AS $$
+ DECLARE
+     stock_quantity INTEGER;
+ BEGIN
+    SELECT quantity INTO stock_quantity
+    FROM product
+     WHERE id = p_id;
+
+    RETURN stock_quantity;
+ END;
+$$ LANGUAGE plpgsql;
+
+--call function
+SELECT get_stock_quantity(1);

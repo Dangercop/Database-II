@@ -1,0 +1,13 @@
+CREATE OR REPLACE FUNCTION reduce_prices_for_high_stock()
+RETURNS VOID AS $$
+BEGIN
+    UPDATE product
+    SET price = price * 0.75
+    WHERE quantity > 20;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+--call function 
+SELECT reduce_prices_for_high_stock();
